@@ -95,6 +95,9 @@ class VPNScheduler(Scheduler):
             self.running = True
 
     def statusUpdate(self, driver, status):
+        # if status.state == mesos_pb2.TASK_RUNNING:
+        #     return
+
         print(status)
 
     def make_task(self, offer):
