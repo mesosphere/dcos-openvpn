@@ -17,7 +17,8 @@ OPTIONAL_ENV = [
 
 REQUIRED_ENV = [
     "MESOS_HOSTNAME",
-    "PORT0"
+    "PORT0",
+    "EASYRSA_PKI"
 ]
 
 def setup_logging():
