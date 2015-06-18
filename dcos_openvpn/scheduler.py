@@ -20,6 +20,7 @@ class VPNScheduler(Scheduler):
 
     name = "openvpn"
     version = dcos_openvpn.__version__
+    image = "thomasr/dcos-openvpn"
 
     role = "public_slave"
     resources = {
@@ -101,8 +102,11 @@ class VPNScheduler(Scheduler):
         print(status)
 
     def make_task(self, offer):
-        docker = mesos_pb2.ContainerInfo.DockerInfo()
-        docker.image = "thomasr/sleep"
+        docker = mesos_pb2.ContainerInfo.DockerInfo(
+            privileged = True
+        )
+        docker.image = self.image
+        docker.network = 1
 
         container = mesos_pb2.ContainerInfo(
             docker = docker,

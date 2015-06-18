@@ -1,26 +1,58 @@
 #!/bin/bash
 
-CA_PASS=${CA_PASS:="nopass"}
-CA_CN=${CA_CN:="openvpn.dcos"}
-ZKPATH=${ZKPATH:="/dcos-vpn"}
-ZKCLI=${ZKCLI:="zk-shell"}
-ZKURL=${ZKURL:="127.0.0.1:2181"}
-CONFIG_LOCATION=${CONFIG_LOCATION:="/etc/openvpn"}
+# Shell lint tool: http://www.shellcheck.net
+set -o errexit -o nounset -o pipefail
 
-MESOS_HOSTNAME=${MESOS_HOSTNAME:=127.0.0.1}
-PORT0=${PORT0:=6000}
+function usage {
+cat <<USAGE
+ USAGE: $(basename "$0")
 
-run_command() {
+  This script does things.
+USAGE
+}
+
+#: ${REQUIRED_ENV_VAR:?"ERROR: REQUIRED_ENV_VAR must be set"}
+
+function globals {
+  export PROJECT_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
+  export CA_PASS=${CA_PASS:="nopass"}
+  export CA_CN=${CA_CN:="openvpn.dcos"}
+  export ZKPATH=${ZKPATH:="/dcos-vpn"}
+  export ZKCLI=${ZKCLI:="zk-shell"}
+  export ZKURL=${ZKURL:="127.0.0.1:2181"}
+  export CONFIG_LOCATION=${CONFIG_LOCATION:="/etc/openvpn"}
+
+  export MESOS_HOSTNAME=${MESOS_HOSTNAME:=127.0.0.1}
+  export PORT0=${PORT0:=6000}
+}; globals
+
+for i in "$@"
+do
+  case "$i" in                                      # Munging globals, beware
+    -h|--help)                usage                        ;;
+    -c)                       conf="$2"          ; shift 2 ;;
+    -v)                       verbose=true       ; shift 1 ;;
+    --)                       break                        ;;
+    *)                        # unknown option             ;;
+  esac
+done
+
+function main {
+  echo "main"
+}
+
+function run_command {
   $ZKCLI --run-once "$1" $ZKURL 2>&1
   return $?
 }
 
-build_configuration() {
+function build_configuration {
   ovpn_genconfig -u udp://$CA_CN
   (echo $CA_CN) | PATH=/dcos/bin:$PATH ovpn_initpki
 }
 
-upload_files() {
+function upload_files {
   ls $CONFIG_LOCATION/openvpn.conf || build_configuration
 
   for fname in $(find $CONFIG_LOCATION -not -type d); do
@@ -29,6 +61,43 @@ upload_files() {
   done
 }
 
-(run_command "ls $ZKPATH") || upload_files
+function scheduler {
+  (run_command "ls $ZKPATH") || upload_files
 
-python -m dcos_openvpn.main
+  python -m dcos_openvpn.main
+}
+
+function download_files {
+  for fname in $(run_command "find $ZKPATH"); do
+    local sub_path=$(echo $fname | cut -d/ -f3-)
+    # If the sub_path is empty, there's no reason to copy
+    [[ -z $sub_path ]] && continue
+
+    local fs_path=$CONFIG_LOCATION/$sub_path
+    run_command "cp $fname file://$fs_path"
+    # Directories are copied as empty files, remove them so that the
+    # subsequent copies actually work.
+    [ -s $fs_path ] || rm $fs_path
+  done
+}
+
+function server {
+  download_files
+
+  ovpn_run
+}
+
+function logged {
+  exec 1> >(logger -p user.info -t "$name[$$]")
+  exec 2> >(logger -p user.notice -t "$name[$$]")
+  "$@"
+}
+
+function msg { out "$*" >&2 ;}
+function err { local x=$? ; msg "$*" ; return $(( x == 0 ? 1 : x )) ;}
+function out { printf '%s\n' "$*" ;}
+
+if [[ ${1:-} ]] && declare -F | cut -d' ' -f3 | fgrep -qx -- "${1:-}"
+then "$@"
+else main "$@"
+fi
