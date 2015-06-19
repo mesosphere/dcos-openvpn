@@ -11,3 +11,6 @@ test:
 
 packages:
 	bin/packages.sh
+
+push:
+	bin/push.sh

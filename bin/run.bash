@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # Shell lint tool: http://www.shellcheck.net
 set -o errexit -o nounset -o pipefail
@@ -20,11 +20,13 @@ function globals {
   export CA_CN=${CA_CN:="openvpn.dcos"}
   export ZKPATH=${ZKPATH:="/dcos-vpn"}
   export ZKCLI=${ZKCLI:="zk-shell"}
-  export ZKURL=${ZKURL:="127.0.0.1:2181"}
+  export ZKURL=${ZKURL:="master.mesos:2181"}
   export CONFIG_LOCATION=${CONFIG_LOCATION:="/etc/openvpn"}
 
-  export MESOS_HOSTNAME=${MESOS_HOSTNAME:=127.0.0.1}
+  export HOST=${HOST:=127.0.0.1}
   export PORT0=${PORT0:=6000}
+
+  export IMAGE=${IMAGE:="thomasr/dcos-openvpn"}
 }; globals
 
 for i in "$@"
@@ -66,7 +68,11 @@ function upload_files {
 }
 
 function scheduler {
-  (run_command "ls $ZKPATH") || upload_files
+  if (run_command "ls $ZKPATH"); then
+    download_files
+  else
+    upload_files
+  fi
 
   python -m dcos_openvpn.main
 }

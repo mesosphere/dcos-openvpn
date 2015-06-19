@@ -20,11 +20,11 @@ class VPNScheduler(Scheduler):
 
     name = "openvpn"
     version = dcos_openvpn.__version__
-    image = "thomasr/dcos-openvpn"
+    image = os.environ.get("IMAGE", "thomasr/dcos-openvpn")
 
-    role = "public_slave"
+    role = "slave_public"
     resources = {
-        "mem": 10,
+        "mem": 512,
         "cpus": 0.1
     }
 
@@ -42,10 +42,10 @@ class VPNScheduler(Scheduler):
         fwinfo = mesos_pb2.FrameworkInfo(
             user="",
             name=self.name,
-            role="public_slave",
+            role=self.role,
             checkpoint=True,
-            webui_url="http://{0}:{1}/".format(
-                os.environ["MESOS_HOSTNAME"],
+            webui_url="http://{0}:{1}".format(
+                os.environ["HOST"],
                 os.environ["PORT0"])
         )
         return SchedulerDriver(
@@ -75,8 +75,8 @@ class VPNScheduler(Scheduler):
                 return
 
         for offer, r in map(lambda x: self.convert_offer(x), offers):
-            logging.info("offer: id={0} resources={1}".format(
-                offer.id.value, r))
+            logging.info("offer: id={0} resources={1} hostname={2}".format(
+                offer.id.value, r, offer.hostname))
 
             missed_resources = \
                 {k: v for k,v in self.resources.iteritems() if r.get(k, 0) < v}

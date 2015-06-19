@@ -12,11 +12,12 @@ from . import scheduler
 from . import web
 
 OPTIONAL_ENV = [
-    "MESOS_CONFIG"
+    "MESOS_CONFIG",
+    "IMAGE"
 ]
 
 REQUIRED_ENV = [
-    "MESOS_HOSTNAME",
+    "HOST",
     "PORT0",
     "EASYRSA_PKI"
 ]
@@ -52,6 +53,7 @@ def main():
 
     check_env()
 
+    logging.info(os.environ)
     scheduler.CURRENT.run()
     web.app.run(
         host='0.0.0.0',

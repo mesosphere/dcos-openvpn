@@ -10,3 +10,4 @@ pydoc/_build/
 .coverage
 
 *.pyc
+*.bak
