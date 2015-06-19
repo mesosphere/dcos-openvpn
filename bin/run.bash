@@ -39,7 +39,11 @@ do
 done
 
 function main {
-  echo "main"
+  echo "......"
+}
+
+function get_location {
+  echo $(run_command "get $ZKPATH/location.conf")
 }
 
 function run_command {
@@ -81,8 +85,17 @@ function download_files {
   done
 }
 
+function set_public_location {
+  local loc=$ZKPATH/location.conf
+  source $OPENVPN/ovpn_env.sh
+  (run_command "ls $loc") || (run_command "create $loc ''")
+
+  run_command "set $loc \"remote $(curl ifconfig.me) $PORT0 $OVPN_PROTO\""
+}
+
 function server {
   download_files
+  set_public_location
 
   ovpn_run
 }

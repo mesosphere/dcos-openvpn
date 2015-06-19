@@ -1,7 +1,9 @@
 
 from __future__ import absolute_import, print_function
 
+import logging
 import os
+import re
 import subprocess
 
 def path(name):
@@ -20,8 +22,10 @@ def upload(name):
                 os.environ.get("CONFIG_LOCATION"))), shell=True)
 
 def output(name):
-    return subprocess.check_output(
-        "ovpn_getclient {0}".format(name), shell=True)
+    loc = subprocess.check_output("/dcos/bin/run.bash get_location", shell=True)
+    return re.sub("remote .*", loc, subprocess.check_output(
+        "ovpn_getclient {0}".format(name), shell=True))
+
 
 def remove(name):
     return os.remove(path(name))

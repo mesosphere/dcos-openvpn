@@ -99,7 +99,7 @@ class VPNScheduler(Scheduler):
         # if status.state == mesos_pb2.TASK_RUNNING:
         #     return
 
-        print(status)
+        logging.info(status)
 
     def make_task(self, offer):
         docker = mesos_pb2.ContainerInfo.DockerInfo(
