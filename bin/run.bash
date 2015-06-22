@@ -68,6 +68,8 @@ function upload_files {
 }
 
 function scheduler {
+  env
+
   if (run_command "ls $ZKPATH"); then
     download_files
   else
@@ -100,6 +102,8 @@ function set_public_location {
 }
 
 function server {
+  env
+
   download_files
   set_public_location
 

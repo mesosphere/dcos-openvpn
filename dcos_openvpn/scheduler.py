@@ -24,7 +24,7 @@ class VPNScheduler(Scheduler):
 
     role = "slave_public"
     resources = {
-        "mem": 512,
+        "mem": 256,
         "cpus": 0.1
     }
 
@@ -90,7 +90,7 @@ class VPNScheduler(Scheduler):
                 driver.declineOffer(offer.id)
                 continue
 
-            task = self.make_task(offer)
+            task = self.make_task(offer, r)
             logging.info("launch_task: hostname={0}".format(offer.hostname))
             driver.launchTasks(offer.id, [task])
             self.running = True
@@ -101,12 +101,18 @@ class VPNScheduler(Scheduler):
 
         logging.info(status)
 
-    def make_task(self, offer):
+    def make_task(self, offer, resources):
+        port = resources["ports"][0][0]
+
         docker = mesos_pb2.ContainerInfo.DockerInfo(
             privileged = True
         )
         docker.image = self.image
-        docker.network = 1
+        docker.network = 2
+        pm = docker.port_mappings.add()
+        pm.host_port = port
+        pm.container_port = 1194
+        pm.protocol = "udp"
 
         container = mesos_pb2.ContainerInfo(
             docker = docker,
@@ -124,12 +130,24 @@ class VPNScheduler(Scheduler):
         task.task_id.value = name
         task.name = name
 
+        env = task.command.environment.variables.add()
+        env.name = "PORT0"
+        env.value = str(port)
+
         for k, v in self.resources.items():
             r = task.resources.add()
             r.name = k
             r.type = mesos_pb2.Value.SCALAR
             r.scalar.value = v
             r.role = self.role
+
+        r = task.resources.add()
+        r.name = "ports"
+        r.type = mesos_pb2.Value.RANGES
+        r.role = self.role
+        p = r.ranges.range.add()
+        p.begin = port
+        p.end = port
 
         return task
 

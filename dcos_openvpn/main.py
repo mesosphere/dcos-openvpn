@@ -53,7 +53,6 @@ def main():
 
     check_env()
 
-    logging.info(os.environ)
     scheduler.CURRENT.run()
     web.app.run(
         host='0.0.0.0',
