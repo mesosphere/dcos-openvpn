@@ -27,7 +27,7 @@ def status():
         validate=lambda x: bool(re.match("^[a-zA-Z\-0-9]+$", x)))
 })
 def create_client(args):
-    if os.path.exists(cert.path(args.get("name"))):
+    if os.path.exists(cert.key_path(args.get("name"))):
         return json.dumps({ "type": "error", "msg": "client exists" }), 400
 
     cert.generate(args.get("name"))
