@@ -19,3 +19,17 @@ How does it work?
 1. Now, you'll need to create a user profile. To do that, POST `name=myname` to scheduler_ip:scheduler_port/client.
 1. The client will be generated (by calling easyrsa build-client-full) and then uploaded via. zkcli.
 1. Once the cert is uploaded, the full output will be returned to you via. the POST body.
+
+Development
+------------
+
+- Make sure you're running a slave with the `slave_public` role.
+- Run `make dev`. This will run the scheduler in a docker and assumes that `leader.mesos` is resolvable. If you want to change the master location, alter MESOS_CONFIG.
+- Openvpn server runs in a docker in bridge mode. Because of this, you'll need to have mesos-dns running locally and add `--dns <host-ip>` to `/etc/default/docker`.
+
+```
+echo "DOCKER_OPTS=\"--dns $(ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')\"" >> /etc/default/docker
+sudo restart docker
+
+sudo docker run --net=host -d -v data/config.json:/config.json mesosphere/mesos-dns /mesos-dns -config=/config.json
+```

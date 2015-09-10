@@ -22,3 +22,6 @@ dev:
 	-v /vagrant/dcos-openvpn:/dcos						\
 	thomasr/dcos-openvpn							\
 	/dcos/bin/test.sh
+
+setup-dns:
+	echo 'DOCKER_OPTS="-b=bridge0"' >> /etc/default/docke

@@ -130,6 +130,7 @@ class VPNScheduler(Scheduler):
         task.task_id.value = name
         task.name = name
 
+        # Used to set the public port when creating users
         env = task.command.environment.variables.add()
         env.name = "PORT0"
         env.value = str(port)
