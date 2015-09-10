@@ -7,13 +7,13 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "thomasr/dcos-openvpn:18",
+      "image": "thomasr/dcos-openvpn:20",
       "network": "HOST"
     }
   },
   "ports": [ 0 ],
   "env": {
     "MESOS_CONFIG": "zk://master.mesos:2181/mesos",
-    "IMAGE": "thomasr/dcos-openvpn:18"
+    "IMAGE": "thomasr/dcos-openvpn:20"
   }
 }

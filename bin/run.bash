@@ -82,6 +82,11 @@ function scheduler {
 function download_files {
   for fname in $(run_command "find $ZKPATH"); do
     local sub_path=$(echo $fname | cut -d/ -f3-)
+
+    if [ $sub_path="Failed" ]; then
+      err "Unable to get data from $ZKURL$ZKPATH. Check your zookeeper."
+    fi
+
     # If the sub_path is empty, there's no reason to copy
     [[ -z $sub_path ]] && continue
 

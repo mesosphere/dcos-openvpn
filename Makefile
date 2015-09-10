@@ -14,3 +14,11 @@ packages:
 
 push:
 	bin/push.sh
+
+dev:
+	docker run								\
+	-it									\
+	--net=host								\
+	-v /vagrant/dcos-openvpn:/dcos						\
+	thomasr/dcos-openvpn							\
+	/dcos/bin/test.sh
