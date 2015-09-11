@@ -17,6 +17,10 @@ from . import scheduler
 
 app = Flask(__name__)
 
+@app.route("/")
+def root():
+    return "OpenVPN running, to add users see: https://github.com/mesosphere/dcos-openvpn"
+
 @app.route("/status")
 def status():
     return "ok"
