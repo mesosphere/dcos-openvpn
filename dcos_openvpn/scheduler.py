@@ -19,8 +19,7 @@ from . import util
 class VPNScheduler(Scheduler):
 
     name = "openvpn"
-    version = dcos_openvpn.__version__
-    image = os.environ.get("IMAGE", "thomasr/dcos-openvpn")
+    image = os.environ.get("IMAGE", "mesosphere/dcos-openvpn")
 
     role = "slave_public"
     resources = {
@@ -105,10 +104,11 @@ class VPNScheduler(Scheduler):
         port = resources["ports"][0][0]
 
         docker = mesos_pb2.ContainerInfo.DockerInfo(
+            image = self.image,
+            force_pull_image = True,
+            network = mesos_pb2.ContainerInfo.DockerInfo.BRIDGE,
             privileged = True
         )
-        docker.image = self.image
-        docker.network = 2
         pm = docker.port_mappings.add()
         pm.host_port = port
         pm.container_port = 1194
@@ -116,7 +116,7 @@ class VPNScheduler(Scheduler):
 
         container = mesos_pb2.ContainerInfo(
             docker = docker,
-            type = 1
+            type = mesos_pb2.ContainerInfo.DOCKER
         )
 
         task = mesos_pb2.TaskInfo(
