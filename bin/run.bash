@@ -26,7 +26,7 @@ function globals {
   export HOST=${HOST:=127.0.0.1}
   export PORT0=${PORT0:=6000}
 
-  export IMAGE=${IMAGE:="thomasr/dcos-openvpn"}
+  export IMAGE=${IMAGE:="mesosphere/dcos-openvpn"}
 }; globals
 
 for i in "$@"

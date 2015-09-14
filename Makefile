@@ -15,13 +15,5 @@ packages:
 push:
 	bin/push.sh
 
-dev:
-	docker run								\
-	-it									\
-	--net=host								\
-	-v /vagrant/dcos-openvpn:/dcos						\
-	thomasr/dcos-openvpn							\
-	/dcos/bin/test.sh
-
 setup-dns:
-	echo 'DOCKER_OPTS="-b=bridge0"' >> /etc/default/docke
+	echo 'DOCKER_OPTS="-b=bridge0"' >> /etc/default/docker
