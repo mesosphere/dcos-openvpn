@@ -112,6 +112,7 @@ function server {
   download_files
   set_public_location
 
+  mkdir "$OPENVPN/ccd"
   ovpn_run
 }
 
