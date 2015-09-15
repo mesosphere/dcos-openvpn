@@ -71,7 +71,7 @@ class VPNScheduler(Scheduler):
         if self.running:
             for offer in offers:
                 driver.declineOffer(offer.id)
-                return
+            return
 
         for offer, r in map(lambda x: self.convert_offer(x), offers):
             logging.info("offer: id={0} resources={1} hostname={2}".format(
