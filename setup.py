@@ -64,7 +64,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'flask >= 0.10.1',
-        'webargs',
+        'webargs == 0.15.0',
         # 'mesos.native >= 0.22.0',
         'zk-shell'
     ],
