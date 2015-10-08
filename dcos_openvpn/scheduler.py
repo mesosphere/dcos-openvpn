@@ -18,7 +18,7 @@ from . import util
 
 class VPNScheduler(Scheduler):
 
-    name = "openvpn"
+    name = os.environ.get("FRAMEWORK_NAME", "openvpn")
     image = os.environ.get("IMAGE", "mesosphere/dcos-openvpn")
 
     role = "slave_public"
