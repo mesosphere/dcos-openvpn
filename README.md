@@ -4,20 +4,25 @@ DCOS OpenVPN
 How does it work?
 --------------
 
-1. Take `marathon.json` and POST it to marathon.
-1. Marathon launches the dcos-openvpn scheduler on a private agent.
-1. The scheduler docker container comes up and `bin/run.bash` is called.
+### Deploy Admin
+1. Take `marathon-admin.json` and POST it to marathon.
+1. Marathon launches the admin web interface on a private agent.
+1. The docker container comes up and `bin/run.bash` is called.
 1. Zookeeper is checked to see if the config has been uploaded or not yet.
 1. If there is nothing in zookeeper, the configuration is built (via. ovpn_genconfig) and then uploaded to zookeeper.
 1. If there is already state in zookeeper, the configuration is downloaded from there and placed into the scheduler's docker container.
-1. At this point, the actual dcos-openvpn scheduler is started. It registers with mesos and waits for resource offers.
-1. Once the scheduler receives a resource offer that is from a slave_public with 256mb of memory and 0.1 cpus, it launches the actual openvpn server on a public slave.
-1. The openvpn task launches in the same docker as the scheduler (see Dockerfile) and runs the beginning bash script.
+
+### Deploy Server
+1. Take `marathon-server.json` and POST it to marathon.
+1. Marathon launches the openvpn server on a public agent.
 1. The configuration is downloaded from zk that was previously uploaded by the scheduler on first startup.
 1. The script goes out externally and fetches its remote ip.
 1. The openvpn server starts running. At this point, the openvpn server is running, but there are no user profiles.
-1. Now, you'll need to create a user profile. To do that, POST `name=myname` to scheduler_ip:scheduler_port/client.
-1. The client will be generated (by calling easyrsa build-client-full) and then uploaded via. zkcli.
+
+
+### Add Users
+1. Now, you'll need to create a user profile. To do that, POST `name=myname` to admin_ip:scheduler_port/client.
+1. The client will be generated (by calling easyrsa build-client-full) and then uploaded via zkcli.
 1. Once the cert is uploaded, the full output will be returned to you via. the POST body.
 
 Development
