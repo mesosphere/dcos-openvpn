@@ -103,7 +103,7 @@ function set_public_location {
   source $OPENVPN/ovpn_env.sh
   (run_command "ls $loc") || (run_command "create $loc ''")
 
-  run_command "set $loc \"remote $(curl ifconfig.me) $PORT0 $OVPN_PROTO\""
+  run_command "set $loc \"remote $(wget -O - -U curl ifconfig.me) $PORT0 $OVPN_PROTO\""
 }
 
 function server {
