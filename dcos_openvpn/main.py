@@ -8,7 +8,6 @@ import sys
 import time
 import threading
 
-from . import scheduler
 from . import web
 
 OPTIONAL_ENV = [
@@ -18,7 +17,6 @@ OPTIONAL_ENV = [
 
 REQUIRED_ENV = [
     "HOST",
-    "PORT0",
     "EASYRSA_PKI"
 ]
 
@@ -53,11 +51,7 @@ def main():
 
     check_env()
 
-    scheduler.CURRENT.run()
-    web.app.run(
-        host='0.0.0.0',
-        port=int(os.environ["PORT0"])
-    )
+    web.app.run(host='0.0.0.0')
 
 if __name__ == "__main__":
     main()

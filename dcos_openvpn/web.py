@@ -13,7 +13,6 @@ from webargs import Arg
 from webargs.flaskparser import use_args
 
 from . import cert
-from . import scheduler
 
 app = Flask(__name__)
 

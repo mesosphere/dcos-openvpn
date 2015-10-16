@@ -1,20 +1,22 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Shell lint tool: http://www.shellcheck.net
 set -o errexit -o nounset -o pipefail
 
 function usage {
 cat <<USAGE
- USAGE: $(basename "$0")
+ USAGE: $(basename "$0") server|admin
 
-  This script does things.
+  This script runs the openvpn server or admin interface. Both need
+  to be deployed to your cluster. The server is the endpoint clients
+  connect to, where admin runs a web api to create users in ZK.
+
 USAGE
 }
 
 #: ${REQUIRED_ENV_VAR:?"ERROR: REQUIRED_ENV_VAR must be set"}
 
 function globals {
-  export PROJECT_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
   export CA_PASS=${CA_PASS:="nopass"}
   export CA_CN=${CA_CN:="openvpn.dcos"}
@@ -26,23 +28,18 @@ function globals {
   export HOST=${HOST:=127.0.0.1}
   export PORT0=${PORT0:=6000}
 
-  export IMAGE=${IMAGE:="mesosphere/dcos-openvpn"}
 }; globals
 
 for i in "$@"
 do
   case "$i" in                                      # Munging globals, beware
-    -h|--help)                usage                        ;;
+    -h|--help)                usage              ; exit 0  ;;
     -c)                       conf="$2"          ; shift 2 ;;
     -v)                       verbose=true       ; shift 1 ;;
     --)                       break                        ;;
     *)                        # unknown option             ;;
   esac
 done
-
-function main {
-  echo "......"
-}
 
 function get_location {
   echo $(run_command "get $ZKPATH/location.conf")
@@ -67,16 +64,14 @@ function upload_files {
   done
 }
 
-function scheduler {
-  env
-
+function admin {
   if (run_command "ls $ZKPATH"); then
     download_files
   else
     upload_files
   fi
 
-  python -m dcos_openvpn.main
+  exec python -m dcos_openvpn.main
 }
 
 function download_files {
@@ -103,7 +98,7 @@ function set_public_location {
   source $OPENVPN/ovpn_env.sh
   (run_command "ls $loc") || (run_command "create $loc ''")
 
-  run_command "set $loc \"remote $(curl ifconfig.me) $PORT0 $OVPN_PROTO\""
+  run_command "set $loc \"remote $(wget -O - -U curl ifconfig.me) $PORT0 $OVPN_PROTO\""
 }
 
 function server {
@@ -113,7 +108,7 @@ function server {
   set_public_location
 
   mkdir "$OPENVPN/ccd"
-  ovpn_run
+  exec ovpn_run
 }
 
 function logged {
@@ -126,7 +121,9 @@ function msg { out "$*" >&2 ;}
 function err { local x=$? ; msg "$*" ; return $(( x == 0 ? 1 : x )) ;}
 function out { printf '%s\n' "$*" ;}
 
-if [[ ${1:-} ]] && declare -F | cut -d' ' -f3 | fgrep -qx -- "${1:-}"
-then "$@"
-else main "$@"
-fi
+
+case "$@" in
+  server) server ;;
+  admin)  admin  ;;
+  *)      usage;  exit 1 ;;
+esac
