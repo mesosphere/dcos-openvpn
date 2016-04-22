@@ -32,7 +32,7 @@ def upload(name):
 
 
 def output(name):
-    loc = subprocess.check_output("/dcos/bin/run.bash get_location", shell=True)
+    loc = subprocess.check_output('$ZKCLI --run-once "get $ZKPATH/location.conf" $ZKURL', shell=True)
     return re.sub(
         "remote .*",
         loc,
