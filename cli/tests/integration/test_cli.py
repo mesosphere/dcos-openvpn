@@ -1,4 +1,4 @@
-from common import exec_command
+from .common import exec_command
 
 
 def test_help():

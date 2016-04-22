@@ -7,6 +7,7 @@ import subprocess
 import pkg_resources
 from dcos_spark import constants
 
+
 def partition(args, pred):
     ain = []
     aout = []
@@ -16,6 +17,7 @@ def partition(args, pred):
         else:
             aout.append(x)
     return (ain, aout)
+
 
 def show_help():
     submit_file = pkg_resources.resource_filename(
@@ -109,7 +111,7 @@ def check_java():
     return False
 
 
-def run(master, args, props = []):
+def run(master, args, props=[]):
     """
     This method runs spark_submit with the passed in parameters.
     ie: ./bin/spark-submit --deploy-mode cluster --class
@@ -130,7 +132,7 @@ def run(master, args, props = []):
 
     process = subprocess.Popen(
         command,
-        env = dict(os.environ, **{"SPARK_JAVA_OPTS": ' '.join(props)}),
+        env=dict(os.environ, **{"SPARK_JAVA_OPTS": ' '.join(props)}),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE)
 
