@@ -1,4 +1,3 @@
-
 from __future__ import absolute_import, print_function
 
 import os
@@ -33,7 +32,8 @@ def status():
                 validate=lambda x: bool(re.match("^[a-zA-Z\-0-9]+$", x)))
 })
 def create_client(args):
-    if os.path.exists(cert.path(args.get("name"))):
+    cert_path = cert.build_path("private", "{0}.key".format(args.get("name")))
+    if os.path.exists(cert_path):
         return json.dumps({"type": "error", "msg": "client exists"}), 400
 
     cert.generate(args.get("name"))
