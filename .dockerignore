@@ -17,3 +17,5 @@ cli/.tox/
 *.pyc
 *.bak
 *.swp
+
+.git/
