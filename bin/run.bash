@@ -125,5 +125,6 @@ function out { printf '%s\n' "$*" ;}
 case "$@" in
   server) server ;;
   admin)  admin  ;;
+  get_location) get_location ;;
   *)      usage;  exit 1 ;;
 esac
