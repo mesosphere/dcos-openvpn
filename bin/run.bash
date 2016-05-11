@@ -41,10 +41,6 @@ do
   esac
 done
 
-function get_location {
-  echo $(run_command "get $ZKPATH/location.conf")
-}
-
 function run_command {
   $ZKCLI --run-once "$1" $ZKURL 2>&1
   return $?
