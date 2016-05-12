@@ -1,7 +1,7 @@
 build/
 dcos.egg-info/
 dist/
-env/
+env/*
 tmp/
 pydoc/_build/
 
@@ -11,8 +11,11 @@ pydoc/_build/
 .coverage
 
 cli/.cache/
+cli/.tox/
 
 *.egg-info/
 *.pyc
 *.bak
 *.swp
+
+.git/
