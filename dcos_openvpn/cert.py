@@ -6,9 +6,17 @@ import os
 import re
 import subprocess
 
-def path(name):
+def key_path(name):
     return os.path.join(os.environ.get("EASYRSA_PKI", ""),
         "private/{0}.key".format(name))
+
+def req_path(name):
+    return os.path.join(os.environ.get("EASYRSA_PKI", ""),
+        "reqs/{0}.req".format(name))
+
+def issued_path(name):
+    return os.path.join(os.environ.get("EASYRSA_PKI", ""),
+        "issued/{0}.crt".format(name))
 
 def generate(name):
     subprocess.check_call(
@@ -18,7 +26,7 @@ def generate(name):
 def upload(name):
     subprocess.check_call(
         '$ZKCLI --run-once "cp file://{0} $ZKPATH/{1}" $ZKURL'.format(
-            path(name), os.path.relpath(path(name),
+            key_path(name), os.path.relpath(key_path(name),
                 os.environ.get("CONFIG_LOCATION"))), shell=True)
 
 def output(name):
@@ -28,4 +36,13 @@ def output(name):
 
 
 def remove(name):
-    return os.remove(path(name))
+    subprocess.check_call(
+        '$ZKCLI --run-once "rm $ZKPATH/{0}" $ZKURL'.format(
+            os.path.relpath(key_path(name),
+                os.environ.get("CONFIG_LOCATION"))), shell=True)
+    p = subprocess.Popen(
+        ["/dcos/bin/easyrsa", "--batch", "revoke", name], stdin=subprocess.PIPE)
+    p.communicate(input=b'nopass\n')[0]
+    os.remove(req_path(name))
+    os.remove(issued_path(name))
+    os.remove(key_path(name))
