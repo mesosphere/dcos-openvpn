@@ -1,12 +1,9 @@
 
 from __future__ import absolute_import, print_function
 
-import argparse
 import logging
 import os
 import sys
-import time
-import threading
 
 from . import web
 
@@ -19,6 +16,7 @@ REQUIRED_ENV = [
     "HOST",
     "EASYRSA_PKI"
 ]
+
 
 def setup_logging():
     root = logging.getLogger()
@@ -38,7 +36,7 @@ def check_env():
     stop = False
 
     for k in REQUIRED_ENV:
-        if not k in os.environ:
+        if k not in os.environ:
             logging.error("missing required env: {0}".format(k))
             stop = True
 
@@ -52,6 +50,7 @@ def main():
     check_env()
 
     web.app.run(host='0.0.0.0')
+
 
 if __name__ == "__main__":
     main()

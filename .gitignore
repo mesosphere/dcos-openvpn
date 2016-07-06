@@ -5,9 +5,14 @@ env/
 tmp/
 pydoc/_build/
 
+.idea/
 .ropeproject/
 .tox/
 .coverage
 
+cli/.cache/
+
+*.egg-info/
 *.pyc
 *.bak
+*.swp

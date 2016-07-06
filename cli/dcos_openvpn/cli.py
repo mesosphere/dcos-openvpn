@@ -24,22 +24,22 @@ import cmd
 import dcos_openvpn
 import dcos_openvpn.config
 
+
 class Dispatch(cmd.Cmd):
 
+    def dispatch(args):
+        pass
 
-def dispatch(args):
+    def main():
+        args = docopt.docopt(
+            __doc__,
+            version='dcos-openvpn version {}'.format(
+                dcos_openvpn.__version__), help=False)
 
+        if args['--info']:
+            print(__doc__.split('\n')[0])
+        else:
+            print(__doc__)
+            return 1
 
-def main():
-    args = docopt.docopt(
-        __doc__,
-        version='dcos-openvpn version {}'.format(
-            dcos_openvpn.__version__), help=False)
-
-    if args['--info']:
-        print(__doc__.split('\n')[0])
-    else:
-        print(__doc__)
-        return 1
-
-    return 0
+        return 0
