@@ -1,4 +1,0 @@
-sphinx
-tox
-wheel
-webargs=0.15.0
